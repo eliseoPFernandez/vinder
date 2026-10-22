@@ -9,4 +9,8 @@ export const COLORS = {
   cardText: '#5a1027',
   drink: '#2e9e4f',
   reject: '#d0343f',
+  gold: '#ffd166',
+  buttonPrimary: 0xf5e6c8,
+  buttonPrimaryText: '#5a1027',
+  buttonSecondary: 0x8a1c3a,
 } as const;

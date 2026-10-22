@@ -1,5 +1,6 @@
 // All player-facing text lives here (Portuguese).
 const priceFormat = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const points = (n: number) => `${n} ${n === 1 ? 'ponto' : 'pontos'}`;
 
 export const STRINGS = {
   title: 'Vinder 🍷',
@@ -8,7 +9,13 @@ export const STRINGS = {
   vintage: (year: number) => `Safra ${year}`,
   price: (value: number) => priceFormat.format(value),
 
-  score: (points: number) => `Pontos: ${points}`,
+  // Menu
+  tagline: 'O Tinder do vinho',
+  play: 'Jogar',
+  howToPlay: 'Arraste para a direita para beber,\npara a esquerda para recusar.',
+
+  // In-game HUD
+  score: (n: number) => `Pontos: ${n}`,
   heartFull: '❤️',
   heartEmpty: '🖤',
 
@@ -17,10 +24,13 @@ export const STRINGS = {
   dodged: 'Ufa! Era ruim 💀',
   lostPatience: 'Esse era bom! 😤',
 
-  // Game over (temporary text version; full screen comes in E5)
+  // Game over
   gameOver: 'FIM DE JOGO',
   defaultDeath: 'Passou mal e não resistiu.',
   gaveUp: 'Cansou de esperar e foi embora.',
-  finalScore: (points: number) => `Você fez ${points} ${points === 1 ? 'ponto' : 'pontos'}`,
-  tapToRestart: 'Toque para jogar de novo',
+  finalScore: (n: number) => points(n),
+  bestScore: (n: number) => `Recorde: ${points(n)}`,
+  newRecord: '🏆 Novo recorde!',
+  playAgain: 'Beber de novo',
+  backToMenu: 'Menu',
 } as const;

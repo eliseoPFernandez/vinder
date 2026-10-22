@@ -5,6 +5,7 @@ import { WineCard, type SwipeDirection } from '../objects/WineCard';
 import { Deck, type Wine } from '../systems/deck';
 import { MAX_PATIENCE, Match, type Outcome } from '../systems/score';
 import { COLORS, FONT_FAMILY } from '../theme';
+import type { GameOverData } from './GameOverScene';
 
 const HUD_Y = 40;
 const CHARACTER_Y = 150;
@@ -12,8 +13,8 @@ const FEEDBACK_Y = 255;
 const CARD_Y = 530;
 // How long the character keeps a happy/impatient face before going back to neutral.
 const MOOD_HOLD_MS = 900;
-// Ignore taps right after game over so the swipe that ended the match doesn't restart it.
-const RESTART_DELAY_MS = 600;
+// Pause on the character's final reaction before switching to the game over screen.
+const GAME_OVER_DELAY_MS = 900;
 
 export class GameScene extends Phaser.Scene {
   private deck!: Deck;
@@ -92,7 +93,13 @@ export class GameScene extends Phaser.Scene {
     this.react(outcome);
 
     if (this.match.over) {
-      this.showGameOver(outcome === 'died' ? (wine.deathMessage ?? STRINGS.defaultDeath) : STRINGS.gaveUp);
+      const died = outcome === 'died';
+      const data: GameOverData = {
+        score: this.match.score,
+        message: died ? (wine.deathMessage ?? STRINGS.defaultDeath) : STRINGS.gaveUp,
+        mood: died ? 'sick' : 'gone',
+      };
+      this.time.delayedCall(GAME_OVER_DELAY_MS, () => this.scene.start('GameOverScene', data));
     } else {
       this.spawnCard();
     }
@@ -131,56 +138,5 @@ export class GameScene extends Phaser.Scene {
     this.tweens.killTweensOf(this.feedback);
     this.tweens.add({ targets: this.feedback, scale: 1, duration: 200, ease: 'Back.easeOut' });
     this.tweens.add({ targets: this.feedback, alpha: 0, delay: 700, duration: 300 });
-  }
-
-  // Temporary text-only game over; the proper screen arrives in E5.
-  private showGameOver(message: string): void {
-    const { width, height } = this.scale;
-    this.feedback.setAlpha(0);
-
-    const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.75).setOrigin(0).setAlpha(0);
-    this.character.setDepth(1);
-    overlay.setDepth(0.5);
-
-    const textStyle = (size: number, color: string = COLORS.cream) => ({
-      fontFamily: FONT_FAMILY,
-      fontSize: `${size}px`,
-      fontStyle: 'bold',
-      color,
-      align: 'center',
-      wordWrap: { width: width - 60 },
-      padding: { top: 6, bottom: 6 },
-    });
-
-    const texts = [
-      this.add.text(width / 2, 320, STRINGS.gameOver, textStyle(44, COLORS.reject)),
-      this.add.text(width / 2, 410, message, textStyle(26)),
-      this.add.text(width / 2, 500, STRINGS.finalScore(this.match.score), textStyle(24)),
-      this.add.text(width / 2, 600, STRINGS.tapToRestart, textStyle(20)),
-    ].map((t) => t.setOrigin(0.5).setDepth(1).setAlpha(0));
-
-    this.tweens.add({ targets: [overlay, ...texts], alpha: 1, duration: 300 });
-    this.tweens.add({
-      targets: texts[3],
-      alpha: 0.4,
-      delay: 600,
-      duration: 700,
-      yoyo: true,
-      repeat: -1,
-    });
-
-    this.time.delayedCall(RESTART_DELAY_MS, () => {
-      // Tap, Space or Enter. Arrows are excluded so a late swipe key doesn't skip this screen.
-      const keyboard = this.input.keyboard;
-      const restart = () => {
-        this.input.off(Phaser.Input.Events.POINTER_DOWN, restart);
-        keyboard?.off('keydown-SPACE', restart);
-        keyboard?.off('keydown-ENTER', restart);
-        this.scene.restart();
-      };
-      this.input.on(Phaser.Input.Events.POINTER_DOWN, restart);
-      keyboard?.on('keydown-SPACE', restart);
-      keyboard?.on('keydown-ENTER', restart);
-    });
   }
 }
