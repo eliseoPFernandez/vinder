@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { STRINGS } from '../data/strings';
+import type { Wine } from '../systems/deck';
 import { COLORS, FONT_FAMILY } from '../theme';
 
 export type SwipeDirection = 'left' | 'right';
@@ -38,7 +39,7 @@ export class WineCard extends Phaser.GameObjects.Container {
   private samples: { x: number; t: number }[] = [];
   private locked = false;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, label: string) {
+  constructor(scene: Phaser.Scene, x: number, y: number, readonly wine: Wine) {
     super(scene, x, y);
     this.homeX = x;
     this.homeY = y;
@@ -54,25 +55,59 @@ export class WineCard extends Phaser.GameObjects.Container {
     body.lineStyle(4, COLORS.cardBorder, 1);
     body.strokeRoundedRect(left, top, CARD_WIDTH, CARD_HEIGHT, CORNER_RADIUS);
 
+    const textWidth = CARD_WIDTH - 40;
+    const textStyle = (size: number, extra: Phaser.Types.GameObjects.Text.TextStyle = {}) => ({
+      fontFamily: FONT_FAMILY,
+      fontSize: `${size}px`,
+      color: COLORS.cardText,
+      align: 'center',
+      wordWrap: { width: textWidth },
+      ...extra,
+    });
+
     const icon = scene.add
-      .text(0, -50, '🍷', { fontSize: '110px', padding: { top: 10, bottom: 10 } })
+      .text(0, top + 70, '🍷', { fontSize: '64px', padding: { top: 8, bottom: 8 } })
       .setOrigin(0.5);
 
-    const labelText = scene.add
-      .text(0, 90, label, {
-        fontFamily: FONT_FAMILY,
-        fontSize: '30px',
-        fontStyle: 'bold',
-        color: COLORS.cardText,
-        align: 'center',
-        wordWrap: { width: CARD_WIDTH - 40 },
-      })
+    const name = scene.add
+      .text(0, top + 150, wine.name, textStyle(28, { fontStyle: 'bold' }))
       .setOrigin(0.5);
+
+    const origin = scene.add
+      .text(0, top + 200, `${wine.grape} · ${wine.country}`, textStyle(19))
+      .setOrigin(0.5);
+
+    const vintageAndPrice = scene.add
+      .text(
+        0,
+        top + 235,
+        `${STRINGS.vintage(wine.vintage)}  ·  ${STRINGS.price(wine.price)}`,
+        textStyle(21, { fontStyle: 'bold' }),
+      )
+      .setOrigin(0.5);
+
+    const divider = scene.add.graphics();
+    divider.lineStyle(2, COLORS.cardBorder, 0.3);
+    divider.lineBetween(left + 40, top + 265, -left - 40, top + 265);
+
+    const description = scene.add
+      .text(0, top + 285, `“${wine.description}”`, textStyle(19, { fontStyle: 'italic' }))
+      .setOrigin(0.5, 0);
 
     this.drinkStamp = this.makeStamp(left + 80, top + 50, -15, STRINGS.stampDrink, COLORS.drink);
     this.rejectStamp = this.makeStamp(-left - 80, top + 50, 15, STRINGS.stampReject, COLORS.reject);
 
-    this.add([body, icon, labelText, this.drinkStamp, this.rejectStamp]);
+    this.add([
+      body,
+      icon,
+      name,
+      origin,
+      vintageAndPrice,
+      divider,
+      description,
+      this.drinkStamp,
+      this.rejectStamp,
+    ]);
     this.setSize(CARD_WIDTH, CARD_HEIGHT);
     this.setInteractive({ useHandCursor: true });
     scene.add.existing(this);

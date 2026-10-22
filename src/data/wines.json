@@ -1,0 +1,71 @@
+[
+  {
+    "id": "quinta-do-vovo-2019",
+    "name": "Quinta do Vovô",
+    "grape": "Touriga Nacional",
+    "country": "Portugal",
+    "vintage": 2019,
+    "price": 89.9,
+    "description": "Encorpado, com notas de ameixa e chocolate.",
+    "isGood": true,
+    "difficulty": 1
+  },
+  {
+    "id": "monte-branco-2023",
+    "name": "Monte Branco",
+    "grape": "Alvarinho",
+    "country": "Portugal",
+    "vintage": 2023,
+    "price": 64.9,
+    "description": "Fresco e cítrico, com toque de maracujá.",
+    "isGood": true,
+    "difficulty": 1
+  },
+  {
+    "id": "rose-da-tia-lurdes-2023",
+    "name": "Rosé da Tia Lurdes",
+    "grape": "Grenache",
+    "country": "Brasil",
+    "vintage": 2023,
+    "price": 44.9,
+    "description": "Leve e frutado, com aroma de morango.",
+    "isGood": true,
+    "difficulty": 1
+  },
+  {
+    "id": "chateau-garrafao-2031",
+    "name": "Château Garrafão",
+    "grape": "Merlot",
+    "country": "Argentina",
+    "vintage": 2031,
+    "price": 59.9,
+    "description": "Notas de frutas vermelhas e carvalho.",
+    "isGood": false,
+    "deathMessage": "Morreu abraçado ao garrafão.",
+    "difficulty": 1
+  },
+  {
+    "id": "reserva-do-posto-2021",
+    "name": "Reserva do Posto",
+    "grape": "Cabernet Sauvignon",
+    "country": "Brasil",
+    "vintage": 2021,
+    "price": 4.99,
+    "description": "Macio, com notas de cereja.",
+    "isGood": false,
+    "deathMessage": "Foi abastecido e não voltou mais.",
+    "difficulty": 1
+  },
+  {
+    "id": "tinto-do-bueiro-2020",
+    "name": "Tinto do Bueiro",
+    "grape": "Malbec",
+    "country": "Chile",
+    "vintage": 2020,
+    "price": 79.9,
+    "description": "Aroma de pneu e final metálico persistente.",
+    "isGood": false,
+    "deathMessage": "Desceu pelo ralo da vida.",
+    "difficulty": 1
+  }
+]

@@ -1,11 +1,13 @@
 import Phaser from 'phaser';
 import { STRINGS } from '../data/strings';
 import { WineCard, type SwipeDirection } from '../objects/WineCard';
+import { Deck } from '../systems/deck';
 import { COLORS, FONT_FAMILY } from '../theme';
 
 const CARD_Y = 480;
 
 export class GameScene extends Phaser.Scene {
+  private deck!: Deck;
   private card: WineCard | null = null;
   private feedback!: Phaser.GameObjects.Text;
 
@@ -15,6 +17,7 @@ export class GameScene extends Phaser.Scene {
 
   create(): void {
     const { width } = this.scale;
+    this.deck = new Deck();
 
     this.add
       .text(width / 2, 70, STRINGS.title, {
@@ -46,7 +49,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnCard(): void {
-    const card = new WineCard(this, this.scale.width / 2, CARD_Y, STRINGS.testWine);
+    const card = new WineCard(this, this.scale.width / 2, CARD_Y, this.deck.draw());
     card.setScale(0.85).setAlpha(0);
     this.tweens.add({ targets: card, scale: 1, alpha: 1, duration: 220, ease: 'Back.easeOut' });
 
