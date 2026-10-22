@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import { STRINGS } from '../data/strings';
-import { Character } from '../objects/Character';
+import { Character, DEATH_FALL_AT } from '../objects/Character';
 import { WineCard, type SwipeDirection } from '../objects/WineCard';
 import { Deck, type Wine } from '../systems/deck';
 import { MAX_PATIENCE, Match, type Outcome } from '../systems/score';
+import { playCheer, playDeath, playGrumble, playGulp, vibrate } from '../systems/sfx';
 import { COLORS, FONT_FAMILY } from '../theme';
 import type { GameOverData } from './GameOverScene';
 
@@ -13,8 +14,6 @@ const FEEDBACK_Y = 255;
 const CARD_Y = 530;
 // How long the character keeps a happy/impatient face before going back to neutral.
 const MOOD_HOLD_MS = 900;
-// Pause on the character's final reaction before switching to the game over screen.
-const GAME_OVER_DELAY_MS = 900;
 
 export class GameScene extends Phaser.Scene {
   private deck!: Deck;
@@ -90,24 +89,15 @@ export class GameScene extends Phaser.Scene {
     this.card = null;
     const outcome = this.match.resolve(wine, direction === 'right');
     this.updateHud();
-    this.react(outcome);
-
-    if (this.match.over) {
-      const died = outcome === 'died';
-      const data: GameOverData = {
-        score: this.match.score,
-        message: died ? (wine.deathMessage ?? STRINGS.defaultDeath) : STRINGS.gaveUp,
-        mood: died ? 'sick' : 'gone',
-      };
-      this.time.delayedCall(GAME_OVER_DELAY_MS, () => this.scene.start('GameOverScene', data));
-    } else {
-      this.spawnCard();
-    }
+    this.react(outcome, wine);
+    if (!this.match.over) this.spawnCard();
   }
 
-  private react(outcome: Outcome): void {
+  private react(outcome: Outcome, wine: Wine): void {
     switch (outcome) {
       case 'scored':
+        playGulp(this);
+        this.time.delayedCall(250, () => playCheer(this));
         this.character.setMood('happy', MOOD_HOLD_MS);
         this.showFeedback(STRINGS.scored, COLORS.drink);
         break;
@@ -115,16 +105,41 @@ export class GameScene extends Phaser.Scene {
         this.showFeedback(STRINGS.dodged, COLORS.cream);
         break;
       case 'lostPatience':
+        playGrumble(this);
+        vibrate(60);
         this.character.setMood('impatient', MOOD_HOLD_MS);
         this.showFeedback(STRINGS.lostPatience, COLORS.reject);
         break;
       case 'died':
-        this.character.setMood('sick');
+        playGulp(this);
+        this.time.delayedCall(350, () => playDeath(this));
+        this.time.delayedCall(DEATH_FALL_AT, () => {
+          vibrate([200, 80, 400]);
+          this.cameras.main.shake(300, 0.012);
+        });
+        this.character.playDeath(() =>
+          this.endMatch({
+            score: this.match.score,
+            message: wine.deathMessage ?? STRINGS.defaultDeath,
+            cause: 'died',
+          }),
+        );
         break;
       case 'gaveUp':
-        this.character.setMood('gone');
+        playGrumble(this);
+        vibrate([100, 60, 100]);
+        this.character.playLeave(() =>
+          this.endMatch({ score: this.match.score, message: STRINGS.gaveUp, cause: 'gaveUp' }),
+        );
         break;
     }
+  }
+
+  private endMatch(data: GameOverData): void {
+    this.cameras.main.fadeOut(250, 0, 0, 0);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () =>
+      this.scene.start('GameOverScene', data),
+    );
   }
 
   private updateHud(): void {
