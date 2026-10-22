@@ -71,9 +71,11 @@ export class GameOverScene extends Phaser.Scene {
 
     const playAgain = () => this.scene.start('GameScene');
     const toMenu = () => this.scene.start('MenuScene');
+    const toCellar = () => this.scene.start('CellarScene');
     const buttons = [
-      new Button(this, cx, 610, STRINGS.playAgain, playAgain),
-      new Button(this, cx, 705, STRINGS.backToMenu, toMenu, 'secondary'),
+      new Button(this, cx, 600, STRINGS.playAgain, playAgain),
+      new Button(this, cx, 685, STRINGS.cellar, toCellar, 'secondary'),
+      new Button(this, cx, 760, STRINGS.backToMenu, toMenu, 'secondary'),
     ];
 
     buttons.forEach((b) => b.disableInteractive().setAlpha(0.5));

@@ -46,10 +46,11 @@ export class MenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const play = () => this.scene.start('GameScene');
-    new Button(this, cx, 570, STRINGS.play, play);
+    new Button(this, cx, 560, STRINGS.play, play);
+    new Button(this, cx, 650, STRINGS.cellar, () => this.scene.start('CellarScene'), 'secondary');
 
     this.add
-      .text(cx, 700, STRINGS.howToPlay, {
+      .text(cx, 750, STRINGS.howToPlay, {
         fontFamily: FONT_FAMILY,
         fontSize: '18px',
         color: COLORS.cream,

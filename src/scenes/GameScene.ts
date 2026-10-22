@@ -5,6 +5,7 @@ import { WineCard, type SwipeDirection } from '../objects/WineCard';
 import { Deck, type Wine } from '../systems/deck';
 import { MAX_PATIENCE, Match, type Outcome } from '../systems/score';
 import { playCheer, playDeath, playGrumble, playGulp, vibrate } from '../systems/sfx';
+import { markWineSeen } from '../systems/storage';
 import { COLORS, FONT_FAMILY } from '../theme';
 import type { GameOverData } from './GameOverScene';
 
@@ -77,7 +78,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnCard(): void {
-    const card = new WineCard(this, this.scale.width / 2, CARD_Y, this.deck.draw());
+    const wine = this.deck.draw();
+    markWineSeen(wine.id);
+    const card = new WineCard(this, this.scale.width / 2, CARD_Y, wine);
     card.setScale(0.85).setAlpha(0);
     this.tweens.add({ targets: card, scale: 1, alpha: 1, duration: 220, ease: 'Back.easeOut' });
 

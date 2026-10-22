@@ -33,4 +33,12 @@ export const STRINGS = {
   newRecord: '🏆 Novo recorde!',
   playAgain: 'Beber de novo',
   backToMenu: 'Menu',
+
+  // Cellar (collection)
+  cellar: 'Adega',
+  cellarTitle: 'Adega 🍷',
+  cellarCount: (found: number, total: number) => `${found} de ${total} vinhos descobertos`,
+  unknownWine: '???',
+  unknownWineHint: 'Ainda não descoberto',
+  back: 'Voltar',
 } as const;
